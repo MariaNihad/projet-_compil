@@ -28,6 +28,8 @@ extern int yylineno;
 [ \t]+   { }
 
 \n      { yylineno++; }
+"--"[^#]*"##"  { /* Ignorer les commentaires de ligne */ }
+"{-"[^-]*"-}"  { /* Ignorer les commentaires multi-lignes */ }
 
 [A-Za-z_][A-Za-z0-9_]* {
     yylval.sval = strdup(yytext);
@@ -45,10 +47,11 @@ extern int yylineno;
 }
 
 "\"[^\"]*\"" {
-    yylval.sval = strdup(yytext);
+  yylval.str = strdup(yytext + 1);  
+    yylval.str[strlen(yylval.str) - 1] = '\0';  // Supprimer le guillemet de fin
+    printf("Chaîne de caractères: \"%s\" à la ligne %d\n", yylval.str, yylineno);
     return TEXT_LITERAL;
 }
-
 \+             { return ADDITION; }
 \-             { return SOUSTRACTION; }
 \*             { return MULTIPLICATION; }
